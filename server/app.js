@@ -8,8 +8,10 @@ const io = new Server(server, {
     origin: "http://localhost:5173",
   },
 });
+const chatNamespace = io.of("/chat");
+const notificationNamespace = io.of("/notifications");
 // let currentSocketId = null;
-io.on("connection", (socket) => {
+chatNamespace.on("connection", (socket) => {
   //   socket.on("message", ({ type, data }) => {
   //     if (type === "init") {
   //       socket.emit("message", {
@@ -57,6 +59,18 @@ io.on("connection", (socket) => {
   socket.on("sendMessage", (message) => {
     socket.emit("message", `${message} gửi từ: ${socket.id}`);
     socket.to("unicode").emit("message", `${message} gửi từ: ${socket.id}`);
+  });
+  socket.on("disconnect", () => {
+    console.log("Client đóng kết nối");
+  });
+});
+notificationNamespace.on("connection", (socket) => {
+  console.log("Kết nối tới notication");
+  socket.on("message", (message) => {
+    socket.emit("message", "Server trả về thông báo: " + message);
+  });
+  socket.on("disconnect", () => {
+    console.log("Client Notification đóng kết nối");
   });
 });
 

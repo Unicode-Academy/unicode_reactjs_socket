@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-const socket = io("http://localhost:8080");
+const socket = io("http://localhost:8080/chat");
+const notificationSocket = io("http://localhost:8080/notifications");
 export default function App() {
   const [room, setRoom] = useState("");
   const handleJoin = () => {
@@ -18,8 +19,12 @@ export default function App() {
     socket.on("message", (data) => {
       console.log(data);
     });
+    notificationSocket.on("message", (data) => {
+      console.log(data);
+    });
     return () => {
       socket.off("message");
+      notificationSocket.off("message");
     };
   });
   return (
@@ -32,6 +37,13 @@ export default function App() {
       <hr />
       <div>
         <button onClick={handleSendMessage}>Gửi tin nhắn tới Room</button>
+        <button
+          onClick={() => {
+            notificationSocket.emit("message", "Gửi thông báo");
+          }}
+        >
+          Gửi thông báo
+        </button>
       </div>
     </div>
   );
