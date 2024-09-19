@@ -8,6 +8,7 @@ const io = new Server(server, {
     origin: "http://localhost:5173",
   },
 });
+let currentSocketId = null;
 io.on("connection", (socket) => {
   socket.on("message", ({ type, data }) => {
     if (type === "init") {
@@ -15,6 +16,28 @@ io.on("connection", (socket) => {
         type: "init",
         data: "Chào mừng bạn đến với Unicode",
       });
+    }
+  });
+  socket.on("privateMessage", ({ type, data: { userId } }, socketId) => {
+    if (type === "sendMessage") {
+      console.log("Client vừa gửi tin nhắn", socketId, userId);
+      socket.emit("message", {
+        type: "newMessage",
+        data: "Tin nhắn 1",
+      });
+      io.emit("message", {
+        type: "newMessage",
+        data: "Tin nhắn tất cả nhận được",
+      });
+      if (+userId === 2) {
+        currentSocketId = socketId;
+      }
+      if (+userId === 1) {
+        socket.to(currentSocketId).emit("message", {
+          type: "newMessage",
+          data: "Tin nhắn 2",
+        });
+      }
     }
   });
   socket.on("disconnect", () => {
