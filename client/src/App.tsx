@@ -1,50 +1,18 @@
-import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
-const socket = io("http://localhost:8080/chat");
-const notificationSocket = io("http://localhost:8080/notifications");
+import Pusher from "pusher-js";
+import { useEffect } from "react";
 export default function App() {
-  const [room, setRoom] = useState("");
-  const handleJoin = () => {
-    setRoom(room ? "" : "unicode");
-    if (room) {
-      socket.emit("leaveRoom", "unicode");
-    } else {
-      socket.emit("joinRoom", "unicode");
-    }
-  };
-  const handleSendMessage = () => {
-    socket.emit("sendMessage", `Tin nhắn từ: ${socket.id}`);
-  };
   useEffect(() => {
-    socket.on("message", (data) => {
-      console.log(data);
+    const pusher = new Pusher("eecdbb5ead2816c0516d", {
+      cluster: "ap1",
     });
-    notificationSocket.on("message", (data) => {
+    const channel = pusher.subscribe("my-channel");
+    channel.bind("my-event", (data) => {
       console.log(data);
     });
     return () => {
-      socket.off("message");
-      notificationSocket.off("message");
+      channel.unbind_all();
+      pusher.unsubscribe("my-channel");
     };
-  });
-  return (
-    <div>
-      <div>
-        <button onClick={handleJoin}>
-          {room ? "Rời khỏi nhóm" : "Tham gia nhóm"}
-        </button>
-      </div>
-      <hr />
-      <div>
-        <button onClick={handleSendMessage}>Gửi tin nhắn tới Room</button>
-        <button
-          onClick={() => {
-            notificationSocket.emit("message", "Gửi thông báo");
-          }}
-        >
-          Gửi thông báo
-        </button>
-      </div>
-    </div>
-  );
+  }, []);
+  return <div>App</div>;
 }
