@@ -1,3 +1,6 @@
+const express = require("express");
+const http = require("http");
+const cors = require("cors");
 const Pusher = require("pusher");
 const pusher = new Pusher({
   appId: "1885080",
@@ -6,7 +9,16 @@ const pusher = new Pusher({
   cluster: "ap1",
   useTLS: false,
 });
+const app = express();
+const server = http.createServer(app);
+app.use(cors());
+app.get("/messages", (req, res) => {
+  pusher.trigger("my-channel", "my-event", {
+    message: "hello world",
+  });
+  return res.json({ success: true });
+});
 
-pusher.trigger("my-channel", "my-event", {
-  message: "hello world",
+server.listen(8080, () => {
+  console.log("Server listening on port 8080");
 });
