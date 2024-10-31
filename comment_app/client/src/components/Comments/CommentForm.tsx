@@ -1,22 +1,35 @@
+import { useClerk, useUser } from "@clerk/clerk-react";
+
 export default function CommentForm() {
-  const isLogin = false;
+  const auth = useUser();
+  const clerk = useClerk();
+
+  if (!auth.isLoaded) {
+    return null;
+  }
+  console.log(auth.user);
+
   return (
     <div>
-      {isLogin ? (
+      {auth.isSignedIn ? (
         <h3 className="font-medium text-lg">
-          Comment as Hoàng An{" "}
-          <a href="#" className="text-cyan-500">
+          Comment as {auth.user?.fullName}
+          <button
+            onClick={() => clerk.signOut()}
+            className="text-cyan-500 ms-2"
+          >
             Logout
-          </a>
+          </button>
         </h3>
       ) : (
-        <a
-          href="#"
+        <button
+          onClick={() => clerk.openSignIn()}
           className="bg-cyan-500 px-3 py-1 text-white rounded-md mb-3"
         >
           Login
-        </a>
+        </button>
       )}
+
       <form action="" className="mt-3">
         <textarea
           placeholder="Please comment..."
