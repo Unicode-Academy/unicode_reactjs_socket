@@ -4,4 +4,14 @@ module.exports = {
     const commentList = await Comment.find();
     res.json(commentList);
   },
+  createComment: async (req, res) => {
+    const { user_id, name, content } = await req.body;
+    const comment = await Comment.create({
+      user_id,
+      name,
+      content,
+      created_at: new Date(),
+    });
+    res.status(201).json(comment);
+  },
 };

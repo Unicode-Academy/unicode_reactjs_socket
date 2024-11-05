@@ -1,14 +1,36 @@
 import { useClerk, useUser } from "@clerk/clerk-react";
+import { useState } from "react";
 
 export default function CommentForm() {
+  const [comment, setComment] = useState<string>("");
   const auth = useUser();
   const clerk = useClerk();
-
   if (!auth.isLoaded) {
     return null;
   }
-  console.log(auth.user);
-
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(e.target.value);
+  };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_API}/api/comments`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: auth.user?.id,
+          name: auth.user?.fullName,
+          content: comment,
+        }),
+      }
+    );
+    if (response.ok) {
+      setComment("");
+    }
+  };
   return (
     <div>
       {auth.isSignedIn ? (
@@ -30,10 +52,12 @@ export default function CommentForm() {
         </button>
       )}
 
-      <form action="" className="mt-3">
+      <form action="" className="mt-3" onSubmit={handleSubmit}>
         <textarea
           placeholder="Please comment..."
           className="border-2 w-full resize-none outline-0 rounded-md p-3"
+          value={comment}
+          onChange={handleChange}
         ></textarea>
         <button className="bg-cyan-500 px-5 py-2 rounded-md text-white float-right">
           Comment

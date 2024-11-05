@@ -1,7 +1,7 @@
 import moment from "moment";
 import { useEffect, useState } from "react";
 export type Comment = {
-  id: number;
+  _id: number;
   name: string;
   content: string;
   created_at: string;
@@ -38,14 +38,14 @@ export default function CommentList() {
         <h3>Loading...</h3>
       ) : (
         comments.map((comment) => (
-          <div className="flex border-b-2 pb-3 mb-3" key={comment.id}>
-            <div className="flex-none w-1/5">
+          <div className="flex border-b-2 pb-3 mb-3" key={comment._id}>
+            <div className="flex-none w-2/5">
               <h3 className="font-medium text-lg">{comment.name}</h3>
               <span className="italic">
                 {moment(comment.created_at).fromNow()}
               </span>
             </div>
-            <div className="flex-none w-4/5">{comment.content}</div>
+            <div className="flex-none w-3/5">{comment.content}</div>
           </div>
         ))
       )}
