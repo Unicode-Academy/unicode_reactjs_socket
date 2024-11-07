@@ -1,7 +1,11 @@
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useState } from "react";
-
-export default function CommentForm() {
+import { Comment } from "./CommentList";
+export default function CommentForm({
+  onCreated,
+}: {
+  onCreated: (comment: Comment) => void;
+}) {
   const [comment, setComment] = useState<string>("");
   const auth = useUser();
   const clerk = useClerk();
@@ -28,7 +32,9 @@ export default function CommentForm() {
       }
     );
     if (response.ok) {
+      const data = await response.json();
       setComment("");
+      onCreated(data);
     }
   };
   return (

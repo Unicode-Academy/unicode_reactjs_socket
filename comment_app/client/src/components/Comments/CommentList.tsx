@@ -1,15 +1,18 @@
 import moment from "moment";
 import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
+const socket = io("http://localhost:8080/comments");
 export type Comment = {
   _id: number;
   name: string;
   content: string;
   created_at: string;
 };
-export default function CommentList() {
+export default function CommentList({ comment }: { comment: Comment }) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<null | Error>(null);
+
   useEffect(() => {
     const getComments = async () => {
       try {
@@ -27,8 +30,15 @@ export default function CommentList() {
         setLoading(false);
       }
     };
-    getComments();
-  }, []);
+    socket.emit("new-comment", comment);
+    socket.on("fetch-comment", () => {
+      getComments();
+    });
+    return () => {
+      socket.off("fetch-comment");
+    };
+  }, [comment]);
+
   if (error) {
     return <h3>{error.message}</h3>;
   }
