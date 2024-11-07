@@ -4,6 +4,7 @@ const http = require("http");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const { Server } = require("socket.io");
+const { clerkMiddleware, requireAuth } = require("@clerk/express");
 const commentController = require("./controllers/comment.controller");
 const app = express();
 const server = http.createServer(app);
@@ -20,9 +21,9 @@ const connectDb = async () => {
   await mongoose.connect(process.env.DATABASE_URL);
 };
 connectDb().catch(console.error);
-
+app.use(clerkMiddleware());
 app.get("/api/comments", commentController.getComments);
-app.post("/api/comments", commentController.createComment);
+app.post("/api/comments", requireAuth(), commentController.createComment);
 
 commentNamespace.on("connection", (socket) => {
   socket.on("new-comment", (data) => {

@@ -1,7 +1,7 @@
 const Comment = require("../models/comment.model");
 module.exports = {
   getComments: async (req, res) => {
-    const commentList = await Comment.find();
+    const commentList = await Comment.find().sort({ created_at: "desc" });
     res.json(commentList);
   },
   createComment: async (req, res) => {
