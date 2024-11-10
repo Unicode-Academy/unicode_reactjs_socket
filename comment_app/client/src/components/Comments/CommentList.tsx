@@ -48,7 +48,23 @@ export default function CommentList({ comment }: { comment: Comment }) {
       socket.off("fetch-comment");
     };
   }, [comment, isSignedIn, getToken]);
-
+  const handleDelete = async (id: number) => {
+    if (window.confirm("Bạn có chắc chắn?")) {
+      const response = await fetch(
+        `${import.meta.env.VITE_SERVER_API}/api/comments/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${await getToken()}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const comment = await response.json();
+        socket.emit("new-comment", comment);
+      }
+    }
+  };
   if (error) {
     return <h3>{error.message}</h3>;
   }
@@ -62,16 +78,21 @@ export default function CommentList({ comment }: { comment: Comment }) {
             className="flex border-b-2 pb-3 mb-3 justify-between"
             key={comment._id}
           >
-            <div className="flex-none">
+            <div className="flex-none w-4/12">
               <h3 className="font-medium text-lg">{comment.name}</h3>
               <span className="italic">
                 {moment(comment.created_at).fromNow()}
               </span>
             </div>
-            <div className="flex-none">{comment.content}</div>
-            <div className="flex-none">
+            <div className="w-full">{comment.content}</div>
+            <div className="flex-none w-1/12">
               {isSignedIn && comment.canDelete && (
-                <span className="cursor-pointer text-red-500 text-xs">Xóa</span>
+                <span
+                  className="cursor-pointer text-red-500 text-xs"
+                  onClick={() => handleDelete(comment._id)}
+                >
+                  Xóa
+                </span>
               )}
             </div>
           </div>

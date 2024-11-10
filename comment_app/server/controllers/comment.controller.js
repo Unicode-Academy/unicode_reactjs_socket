@@ -23,4 +23,14 @@ module.exports = {
     });
     res.status(201).json(comment);
   },
+  deleteComment: async (req, res) => {
+    const { userId } = getAuth(req);
+    const { id } = req.params;
+    const comment = await Comment.findById(id);
+    if (!comment || comment.user_id !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    await Comment.deleteOne({ _id: id });
+    res.json(comment);
+  },
 };
