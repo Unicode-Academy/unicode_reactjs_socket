@@ -1,5 +1,5 @@
 const Comment = require("../models/comment.model");
-const { getAuth } = require("@clerk/express");
+const { getAuth, clerkClient } = require("@clerk/express");
 module.exports = {
   getComments: async (req, res) => {
     const { userId } = getAuth(req);
@@ -14,10 +14,16 @@ module.exports = {
     res.json(commentOutput);
   },
   createComment: async (req, res) => {
-    const { user_id, name, content } = await req.body;
+    const { content } = await req.body;
+    if (!content) {
+      return res.status(400).json({ message: "Content is required" });
+    }
+    const { userId } = getAuth(req);
+    const user = await clerkClient.users.getUser(userId);
+
     const comment = await Comment.create({
-      user_id,
-      name,
+      user_id: userId,
+      name: user.fullName,
       content,
       created_at: new Date(),
     });

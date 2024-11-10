@@ -7,6 +7,7 @@ export default function CommentForm({
   onCreated: (comment: Comment) => void;
 }) {
   const [comment, setComment] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
   const auth = useUser();
 
   const clerk = useClerk();
@@ -30,16 +31,16 @@ export default function CommentForm({
           Authorization: `Bearer ${await getToken()}`,
         },
         body: JSON.stringify({
-          user_id: auth.user?.id,
-          name: auth.user?.fullName,
           content: comment,
         }),
       }
     );
+    const data = await response.json();
     if (response.ok) {
-      const data = await response.json();
       setComment("");
       onCreated(data);
+    } else {
+      setMessage(data.message);
     }
   };
   return (
@@ -62,6 +63,7 @@ export default function CommentForm({
               value={comment}
               onChange={handleChange}
             ></textarea>
+            {message && <span className="text-red-500">{message}</span>}
             <button className="bg-cyan-500 px-5 py-2 rounded-md text-white float-right">
               Comment
             </button>
