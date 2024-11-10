@@ -9,8 +9,15 @@ export type Comment = {
   content: string;
   created_at: string;
   canDelete: boolean;
+  canEdit: boolean;
 };
-export default function CommentList({ comment }: { comment: Comment }) {
+export default function CommentList({
+  comment,
+  onEdit,
+}: {
+  comment: Comment;
+  onEdit: (id: number) => void;
+}) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<null | Error>(null);
@@ -65,6 +72,7 @@ export default function CommentList({ comment }: { comment: Comment }) {
       }
     }
   };
+
   if (error) {
     return <h3>{error.message}</h3>;
   }
@@ -86,6 +94,14 @@ export default function CommentList({ comment }: { comment: Comment }) {
             </div>
             <div className="w-full">{comment.content}</div>
             <div className="flex-none w-1/12">
+              {isSignedIn && comment.canEdit && (
+                <span
+                  className="cursor-pointer text-blue-500 text-xs me-2"
+                  onClick={() => onEdit(comment._id)}
+                >
+                  Sửa
+                </span>
+              )}
               {isSignedIn && comment.canDelete && (
                 <span
                   className="cursor-pointer text-red-500 text-xs"

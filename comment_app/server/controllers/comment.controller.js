@@ -9,9 +9,19 @@ module.exports = {
       return {
         ...commentJson,
         canDelete: commentJson.user_id === userId,
+        canEdit: commentJson.user_id === userId,
       };
     });
     res.json(commentOutput);
+  },
+  getComment: async (req, res) => {
+    const { id } = req.params;
+    const { userId } = getAuth(req);
+    const comment = await Comment.findById(id);
+    if (!comment || comment.user_id !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    res.json(comment);
   },
   createComment: async (req, res) => {
     const { content } = await req.body;
