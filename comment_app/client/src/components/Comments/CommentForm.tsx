@@ -20,8 +20,7 @@ export default function CommentForm({
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setComment(e.target.value);
   };
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleCreateComment = async () => {
     const response = await fetch(
       `${import.meta.env.VITE_SERVER_API}/api/comments`,
       {
@@ -41,6 +40,36 @@ export default function CommentForm({
       onCreated(data);
     } else {
       setMessage(data.message);
+    }
+  };
+  const handleUpdateComment = async (id: number) => {
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_API}/api/comments/${id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${await getToken()}`,
+        },
+        body: JSON.stringify({
+          content: comment,
+        }),
+      }
+    );
+    const data = await response.json();
+    if (response.ok) {
+      handleCancelEdit();
+      onCreated(data);
+    } else {
+      setMessage(data.message);
+    }
+  };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!commentId) {
+      handleCreateComment();
+    } else {
+      handleUpdateComment(commentId);
     }
   };
   const handleCancelEdit = () => {

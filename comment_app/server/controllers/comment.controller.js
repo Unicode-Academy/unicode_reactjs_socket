@@ -49,4 +49,21 @@ module.exports = {
     await Comment.deleteOne({ _id: id });
     res.json(comment);
   },
+  updateComment: async (req, res) => {
+    const { id } = req.params;
+    const { userId } = getAuth(req);
+    const { content } = await req.body;
+    if (!content) {
+      return res.status(400).json({ message: "Content is required" });
+    }
+    let comment = await Comment.findById(id);
+    if (!comment || comment.user_id !== userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    await comment.updateOne({ content });
+    comment = comment.toJSON();
+    comment.content = content;
+    return res.json(comment);
+  },
 };

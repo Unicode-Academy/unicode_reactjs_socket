@@ -25,7 +25,8 @@ app.use(clerkMiddleware());
 app.get("/api/comments", commentController.getComments);
 app.post("/api/comments", requireAuth(), commentController.createComment);
 app.delete("/api/comments/:id", requireAuth(), commentController.deleteComment);
-app.get("/api/comments/:id", commentController.getComment);
+app.get("/api/comments/:id", requireAuth(), commentController.getComment);
+app.patch("/api/comments/:id", requireAuth(), commentController.updateComment);
 
 commentNamespace.on("connection", (socket) => {
   socket.on("new-comment", (data) => {
