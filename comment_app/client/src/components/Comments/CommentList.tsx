@@ -2,6 +2,7 @@ import { useAuth } from "@clerk/clerk-react";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import Paginate from "./Paginate/Paginate";
 const socket = io("http://localhost:8080/comments");
 export type Comment = {
   _id: number;
@@ -114,6 +115,14 @@ export default function CommentList({
           </div>
         ))
       )}
+      <Paginate
+        page={2}
+        pageSize={3}
+        prev={true}
+        onClick={(page) => {
+          console.log(page);
+        }}
+      />
     </div>
   );
 }
