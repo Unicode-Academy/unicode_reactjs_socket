@@ -14,7 +14,11 @@ const io = new Server(server, {
   },
 });
 const commentNamespace = io.of("/comments");
-app.use(cors());
+app.use(
+  cors({
+    exposedHeaders: "*",
+  })
+);
 app.use(express.json());
 //Connect database
 const connectDb = async () => {

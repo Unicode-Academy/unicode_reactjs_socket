@@ -23,6 +23,9 @@ export default function CommentList({
   const [isLoading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<null | Error>(null);
   const { isSignedIn, getToken } = useAuth();
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(1);
+  const limit = import.meta.env.VITE_COMMENT_LIMIT;
 
   useEffect(() => {
     const getComments = async () => {
@@ -32,7 +35,9 @@ export default function CommentList({
           headers["Authorization"] = `Bearer ${await getToken()}`;
         }
         const response = await fetch(
-          `${import.meta.env.VITE_SERVER_API}/api/comments`,
+          `${
+            import.meta.env.VITE_SERVER_API
+          }/api/comments?_limit=${limit}&_page=${page}`,
           {
             headers,
           }
@@ -40,6 +45,10 @@ export default function CommentList({
         if (!response.ok) {
           throw new Error(response.statusText);
         }
+        const count = response.headers.get("x-total-count");
+        const pageSize = Math.ceil(Number(count) / limit);
+        setPageSize(pageSize);
+
         const data = await response.json();
         setComments(data);
       } catch (error) {
@@ -55,7 +64,7 @@ export default function CommentList({
     return () => {
       socket.off("fetch-comment");
     };
-  }, [comment, isSignedIn, getToken]);
+  }, [comment, isSignedIn, getToken, page, limit]);
   const handleDelete = async (id: number) => {
     if (window.confirm("Bạn có chắc chắn?")) {
       const response = await fetch(
@@ -116,12 +125,15 @@ export default function CommentList({
         ))
       )}
       <Paginate
-        page={2}
-        pageSize={3}
-        prev={true}
+        page={page}
+        pageSize={pageSize}
+        prev={page > 1}
+        next={page < pageSize}
         onClick={(page) => {
-          console.log(page);
+          setPage(page);
         }}
+        onClickPrev={() => page > 1 && setPage(page - 1)}
+        onClickNext={() => page < pageSize && setPage(page + 1)}
       />
     </div>
   );

@@ -8,18 +8,22 @@ export default function Paginate({
   prev = false,
   next = true,
   onClick,
+  onClickPrev,
+  onClickNext,
 }: {
   page: number;
   pageSize: number;
   prev?: boolean;
   next?: boolean;
   onClick?: (page: number) => void;
+  onClickPrev?: () => void;
+  onClickNext?: () => void;
 }) {
   const range = Array.from({ length: pageSize }, (_, i) => i + 1);
 
   return (
     <div className="flex space-x-1 justify-center">
-      {prev && <PrevBtn />}
+      {<PrevBtn disabled={!prev} onClick={onClickPrev} />}
       {range.map((item) => (
         <PaginateItem
           onClick={onClick}
@@ -28,7 +32,7 @@ export default function Paginate({
           active={page === item}
         />
       ))}
-      {next && <NextBtn />}
+      {<NextBtn disabled={!next} onClick={onClickNext} />}
     </div>
   );
 }

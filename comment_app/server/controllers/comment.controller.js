@@ -2,8 +2,14 @@ const Comment = require("../models/comment.model");
 const { getAuth, clerkClient } = require("@clerk/express");
 module.exports = {
   getComments: async (req, res) => {
+    const { _limit = 10, _page = 1 } = req.query;
     const { userId } = getAuth(req);
-    const commentList = await Comment.find().sort({ created_at: "desc" });
+    const _skip = (_page - 1) * _limit;
+    const count = await Comment.countDocuments();
+    const commentList = await Comment.find()
+      .sort({ created_at: "desc" })
+      .limit(_limit)
+      .skip(_skip);
     const commentOutput = commentList.map((comment) => {
       const commentJson = comment.toJSON();
       return {
@@ -12,6 +18,7 @@ module.exports = {
         canEdit: commentJson.user_id === userId,
       };
     });
+    res.set("x-total-count", count);
     res.json(commentOutput);
   },
   getComment: async (req, res) => {
